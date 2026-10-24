@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DoPaz Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">Do<span>Paz</span></div>
+    </div>
+    <nav>
+      <div class="nav-section">Main</div>
+      <a href="#" class="nav-item active" data-page="dashboard"><span class="nav-icon">⊞</span> Dashboard</a>
+      <a href="#" class="nav-item" data-page="services"><span class="nav-icon">◫</span> Services</a>
+      <a href="#" class="nav-item" data-page="new-order"><span class="nav-icon">＋</span> New Order</a>
+      <div class="nav-section">Orders</div>
+      <a href="#" class="nav-item" data-page="orders"><span class="nav-icon">≡</span> My Orders</a>
+      <a href="#" class="nav-item" data-page="status"><span class="nav-icon">◎</span> Check Status</a>
+      <div class="nav-section">Automation</div>
+      <a href="#" class="nav-item" data-page="quickboost"><span class="nav-icon">⚡</span> Quick Boost</a>
+      <a href="#" class="nav-item" data-page="planner"><span class="nav-icon">◈</span> Planner</a>
+      <a href="#" class="nav-item" data-page="scheduled"><span class="nav-icon">◷</span> Scheduled</a>
+      <div class="nav-section">System</div>
+      <a href="#" class="nav-item" data-page="settings"><span class="nav-icon">◉</span> Settings</a>
+    </nav>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title" id="page-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="balance-chip" id="balance-display">💰 Balance: --</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="cards">
+          <div class="card">
+            <div class="card-label">Total Orders</div>
+            <div class="card-value" id="stat-total">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Active</div>
+            <div class="card-value blue" id="stat-pending">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Completed</div>
+            <div class="card-value green" id="stat-completed">0</div>
+          </div>
+          <div class="card">
+            <div class="card-label">Partial</div>
+            <div class="card-value purple" id="stat-partial">0</div>
+          </div>
+        </div>
+        <div class="section-header">
+          <div class="section-title">Recent Orders</div>
+        </div>
+        <div id="recent-orders-table"></div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="page" id="page-services">
+        <div class="toolbar">
+          <input type="text" id="service-search" placeholder="Search services..." />
+          <select id="category-filter"><option value="">All Categories</option></select>
+          <button class="btn btn-secondary" onclick="loadServices()">↺ Refresh</button>
+        </div>
+        <div id="services-table"></div>
+      </div>
+
+      <!-- NEW ORDER -->
+      <div class="page" id="page-new-order">
+        <div class="form-box">
+          <h2>Place New Order</h2>
+          <div class="form-group">
+            <label>Service ID</label>
+            <input type="number" id="order-service" placeholder="Enter Service ID" />
+            <small id="service-hint"></small>
+          </div>
+          <div class="form-group">
+            <label>Link</label>
+            <input type="text" id="order-link" placeholder="https://instagram.com/..." />
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="order-qty" placeholder="Enter quantity" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="placeOrder()">Place Order</button>
+          <div id="order-result" class="result-box hidden"></div>
+        </div>
+      </div>
+
+      <!-- MY ORDERS -->
+      <div class="page" id="page-orders">
+        <div class="toolbar">
+          <input type="text" id="order-search" placeholder="Search by Order ID or Link..." />
+          <select id="status-filter">
+            <option value="">All Status</option>
+            <option>Pending</option>
+            <option>In progress</option>
+            <option>Completed</option>
+            <option>Partial</option>
+            <option>Cancelled</option>
+          </select>
+          <button class="btn btn-secondary" onclick="refreshAllOrders()">↺ Refresh All</button>
+          <button class="btn btn-danger" onclick="clearOrders()">✕ Clear</button>
+        </div>
+        <div id="orders-table"></div>
+      </div>
+
+      <!-- CHECK STATUS -->
+      <div class="page" id="page-status">
+        <div class="form-box">
+          <h2>Check Order Status</h2>
+          <div class="form-group">
+            <label>Order ID(s)</label>
+            <input type="text" id="status-input" placeholder="e.g. 1000001 or 1000001,1000002,1000003" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="checkStatus()">Check Status</button>
+          <div id="status-result" class="result-box hidden"></div>
+        </div>
+      </div>
+
+      <!-- QUICK BOOST -->
+      <div class="page" id="page-quickboost">
+        <div style="display:grid;grid-template-columns:400px 1fr;gap:16px;align-items:start">
+          <div class="form-box" style="max-width:100%">
+            <h2>⚡ Quick Boost</h2>
+            <div class="form-group">
+              <label>Post Link</label>
+              <input type="text" id="qb-link" placeholder="https://instagram.com/p/..." />
+            </div>
+            <button class="btn btn-primary btn-full" onclick="startQuickBoost()">⚡ Schedule Now</button>
+            <div id="qb-result" class="result-box hidden"></div>
+          </div>
+          <div>
+            <div class="qb-schedule-list">
+              <div class="qb-schedule-header">Schedule — 38 orders over ~9.5 hrs</div>
+              <div class="qb-row"><span class="qb-time">T+5m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">47 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+15m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">58 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+30m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">67 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+45m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">134 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+45m</span><span class="qb-svc">13639</span><span class="qb-qty qb-type-likes">13 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+55m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">62 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+85m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">156 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+95m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">74 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+95m</span><span class="qb-svc">13626</span><span class="qb-qty qb-type-likes">24 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+125m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">176 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+135m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">82 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+165m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">183 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+165m</span><span class="qb-svc">13626</span><span class="qb-qty qb-type-likes">27 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+175m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">79 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+205m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">189 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+215m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">85 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+245m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">187 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+245m</span><span class="qb-svc">13626</span><span class="qb-qty qb-type-likes">29 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+255m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">83 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+285m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">184 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+295m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">77 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+325m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">178 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+325m</span><span class="qb-svc">13626</span><span class="qb-qty qb-type-likes">24 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+335m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">71 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+365m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">172 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+375m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">65 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+405m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">165 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+405m</span><span class="qb-svc">13639</span><span class="qb-qty qb-type-likes">15 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+415m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">60 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+445m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">158 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+455m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">55 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+485m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">150 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+485m</span><span class="qb-svc">13626</span><span class="qb-qty qb-type-likes">21 likes</span></div>
+              <div class="qb-row"><span class="qb-time">T+495m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">51 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+525m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">143 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+535m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">48 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+565m</span><span class="qb-svc">11085</span><span class="qb-qty qb-type-views">136 views</span></div>
+              <div class="qb-row"><span class="qb-time">T+575m</span><span class="qb-svc">12876</span><span class="qb-qty qb-type-views">47 views</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLANNER -->
+      <div class="page" id="page-planner">
+        <div class="planner-layout">
+          <div class="planner-left">
+            <div class="form-box" style="max-width:100%">
+              <h2>Engagement Planner</h2>
+              <div class="form-group">
+                <label>Post Link</label>
+                <input type="text" id="planner-link" placeholder="https://instagram.com/p/..." />
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px">
+                <div class="section-title">Engagement Targets</div>
+                <button class="btn btn-secondary" style="font-size:11.5px;padding:5px 12px;gap:5px" onclick="applyReelBoostTemplate()">🚀 Reel Boost</button>
+              </div>
+
+              <div id="planner-rows">
+                <!-- Views -->
+                <div class="planner-row" data-type="Views">
+                  <div class="planner-row-header">
+                    <span class="planner-type-label">👁 Views</span>
+                    <label class="toggle-switch"><input type="checkbox" class="row-toggle" checked /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="planner-row-inputs">
+                    <div class="form-group"><label>Service ID</label><input type="number" class="row-service" placeholder="e.g. 123" /></div>
+                    <div class="form-group"><label>Total Qty</label><input type="number" class="row-qty" placeholder="e.g. 15000" /></div>
+                    <div class="form-group"><label>Chunk Range</label><div class="range-inputs"><input type="number" class="row-min-chunk" placeholder="Min" /><span>—</span><input type="number" class="row-max-chunk" placeholder="Max" /></div></div>
+                  </div>
+                </div>
+                <!-- Likes -->
+                <div class="planner-row disabled" data-type="Likes">
+                  <div class="planner-row-header">
+                    <span class="planner-type-label">❤️ Likes</span>
+                    <label class="toggle-switch"><input type="checkbox" class="row-toggle" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="planner-row-inputs">
+                    <div class="form-group"><label>Service ID</label><input type="number" class="row-service" placeholder="e.g. 456" /></div>
+                    <div class="form-group"><label>Total Qty</label><input type="number" class="row-qty" placeholder="e.g. 500" /></div>
+                    <div class="form-group"><label>Chunk Range</label><div class="range-inputs"><input type="number" class="row-min-chunk" placeholder="Min" /><span>—</span><input type="number" class="row-max-chunk" placeholder="Max" /></div></div>
+                  </div>
+                </div>
+                <!-- Saves -->
+                <div class="planner-row disabled" data-type="Saves">
+                  <div class="planner-row-header">
+                    <span class="planner-type-label">🔖 Saves</span>
+                    <label class="toggle-switch"><input type="checkbox" class="row-toggle" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="planner-row-inputs">
+                    <div class="form-group"><label>Service ID</label><input type="number" class="row-service" placeholder="e.g. 789" /></div>
+                    <div class="form-group"><label>Total Qty</label><input type="number" class="row-qty" placeholder="e.g. 200" /></div>
+                    <div class="form-group"><label>Chunk Range</label><div class="range-inputs"><input type="number" class="row-min-chunk" placeholder="Min" /><span>—</span><input type="number" class="row-max-chunk" placeholder="Max" /></div></div>
+                  </div>
+                </div>
+                <!-- Shares -->
+                <div class="planner-row disabled" data-type="Shares">
+                  <div class="planner-row-header">
+                    <span class="planner-type-label">↗️ Shares</span>
+                    <label class="toggle-switch"><input type="checkbox" class="row-toggle" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="planner-row-inputs">
+                    <div class="form-group"><label>Service ID</label><input type="number" class="row-service" placeholder="e.g. 321" /></div>
+                    <div class="form-group"><label>Total Qty</label><input type="number" class="row-qty" placeholder="e.g. 100" /></div>
+                    <div class="form-group"><label>Chunk Range</label><div class="range-inputs"><input type="number" class="row-min-chunk" placeholder="Min" /><span>—</span><input type="number" class="row-max-chunk" placeholder="Max" /></div></div>
+                  </div>
+                </div>
+                <!-- Comments -->
+                <div class="planner-row disabled" data-type="Comments">
+                  <div class="planner-row-header">
+                    <span class="planner-type-label">💬 Comments</span>
+                    <label class="toggle-switch"><input type="checkbox" class="row-toggle" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="planner-row-inputs">
+                    <div class="form-group"><label>Service ID</label><input type="number" class="row-service" placeholder="e.g. 654" /></div>
+                    <div class="form-group"><label>Total Qty</label><input type="number" class="row-qty" placeholder="e.g. 50" /></div>
+                    <div class="form-group"><label>Chunk Range</label><div class="range-inputs"><input type="number" class="row-min-chunk" placeholder="Min" /><span>—</span><input type="number" class="row-max-chunk" placeholder="Max" /></div></div>
+                  </div>
+                </div>
+                <!-- Followers -->
+                <div class="planner-row disabled" data-type="Followers">
+                  <div class="planner-row-header">
+                    <span class="planner-type-label">👥 Followers</span>
+                    <label class="toggle-switch"><input type="checkbox" class="row-toggle" /><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="planner-row-inputs">
+                    <div class="form-group"><label>Service ID</label><input type="number" class="row-service" placeholder="e.g. 987" /></div>
+                    <div class="form-group"><label>Total Qty</label><input type="number" class="row-qty" placeholder="e.g. 1000" /></div>
+                    <div class="form-group"><label>Chunk Range</label><div class="range-inputs"><input type="number" class="row-min-chunk" placeholder="Min" /><span>—</span><input type="number" class="row-max-chunk" placeholder="Max" /></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:16px">
+                <label>Schedule Start</label>
+                <input type="datetime-local" id="planner-start" />
+              </div>
+              <div class="form-group">
+                <label>Spread Over (hours)</label>
+                <input type="number" id="planner-spread" value="24" min="1" max="720" />
+              </div>
+              <button class="btn btn-primary btn-full" onclick="generatePlan()">⚡ Generate Plan</button>
+            </div>
+          </div>
+
+          <div class="planner-right">
+            <div id="plan-preview" class="plan-preview-empty">
+              Fill in the details on the left and click<br><strong>Generate Plan</strong> to see the breakdown.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHEDULED -->
+      <div class="page" id="page-scheduled">
+        <div class="toolbar">
+          <button class="btn btn-secondary" onclick="renderScheduled()">↺ Refresh</button>
+          <button class="btn btn-danger" onclick="clearScheduled()">✕ Clear Completed</button>
+        </div>
+        <div id="scheduled-table"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="form-box">
+          <h2>Settings</h2>
+          <div class="form-group">
+            <label>API Key</label>
+            <input type="password" id="settings-apikey" placeholder="Enter your yoyomedia API key" />
+            <button class="btn btn-secondary" style="margin-top:6px;width:auto;padding:5px 12px;font-size:12px" onclick="toggleApiKeyVisibility()">Show / Hide</button>
+          </div>
+          <div class="form-group">
+            <label>API URL</label>
+            <input type="text" id="settings-apiurl" value="https://yoyomedia.in/api/v2" />
+          </div>
+          <button class="btn btn-primary btn-full" onclick="saveSettings()">Save Settings</button>
+          <div id="settings-result" class="result-box hidden"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer">
+        <button onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
